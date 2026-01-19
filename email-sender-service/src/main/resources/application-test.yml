@@ -1,50 +1,48 @@
 spring:
   application:
-    name: email-sender-service
-
-  elasticsearch:
-    connection-timeout: 5s
-    socket-timeout: 30s
+    name: email-sender-service-test
 
   kafka:
-    bootstrap-servers: ${KAFKA_ADDRESS}
+    bootstrap-servers: localhost:9093
     consumer:
       group-id: ${spring.application.name}
+      auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.value.default.type: com.halmber.emailsenderservice.model.dto.EmailMessageDto
-        spring.json.trusted.packages: com.halmber.springordersapi.model.dto.messaging.*
+        spring.json.trusted.packages: "*"
         spring.json.use.type.headers: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
   mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    host: smtp.test.com
+    port: 587
+    username: test@test.com
+    password: test-password
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
-            required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+
 kafka:
   topics:
     emailSend: emailSend
 
-elasticsearch:
-  address: ${ES_ADDRESS}
-
 scheduler:
   fixed.rate: 300000
 
+scheduling:
+  enabled: false
+
 logging:
   level:
-    com.halmber.emailsenderservice: INFO
     org.springframework.kafka: WARN
+    org.apache.kafka: WARN
     org.elasticsearch: WARN
+    com.halmber: DEBUG
